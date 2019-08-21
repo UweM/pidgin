@@ -175,8 +175,19 @@ static const GdkColor *get_nick_color(PidginConversation *gtkconv, const char *n
 	static GdkColor col;
 	GtkStyle *style = gtk_widget_get_style(gtkconv->imhtml);
 	float scale;
-
-	col = nick_colors[g_str_hash(name) % nbr_nick_colors];
+	purple_debug_info("gtkconv", "xxx name: %s\n", name);
+    int index = 0;
+    if(strcmp(name, "Uwe") == 0) {
+        index = 0;
+    } else if(strcmp(name, "Phil") == 0) {
+        index = 1;
+    } else if(strcmp(name, "Thomas") == 0) {
+        index = 2;
+    } else {
+        index = g_str_hash(name) % nbr_nick_colors;
+    }
+    
+	col = nick_colors[index];
 	scale = ((1-(LUMINANCE(style->base[GTK_STATE_NORMAL]) / LUMINANCE(style->white))) *
 		       (LUMINANCE(style->white)/MAX(MAX(col.red, col.blue), col.green)));
 
@@ -10267,10 +10278,14 @@ generate_nick_colors(guint *color_count, GdkColor background)
 	GdkColor *colors = g_new(GdkColor, numcolors);
 	GdkColor nick_highlight;
 	GdkColor send_color;
+	GdkColor recv_color;
+	GdkColor third_color;
 	time_t breakout_time;
 
 	gdk_color_parse(DEFAULT_HIGHLIGHT_COLOR, &nick_highlight);
 	gdk_color_parse(DEFAULT_SEND_COLOR, &send_color);
+	gdk_color_parse("#cc0000", &recv_color);
+	gdk_color_parse("#00aacc", &third_color);
 
 	pidgin_style_adjust_contrast(NULL, &nick_highlight);
 	pidgin_style_adjust_contrast(NULL, &send_color);
@@ -10278,6 +10293,12 @@ generate_nick_colors(guint *color_count, GdkColor background)
 	srand(background.red + background.green + background.blue + 1);
 
 	breakout_time = time(NULL) + 3;
+
+    
+    colors[i++] = send_color;
+    colors[i++] = recv_color;
+    colors[i++] = third_color;
+    
 
 	/* first we look through the list of "good" colors: colors that differ from every other color in the
 	 * list.  only some of them will differ from the background color though. lets see if we can find
